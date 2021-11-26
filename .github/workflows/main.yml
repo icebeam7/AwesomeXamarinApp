@@ -8,11 +8,18 @@ jobs:
     steps:
     - name: Checkout 
       uses: actions/checkout@v1
-    
-    - name: Android
+
+    - name: Restore NuGet packages
+      run: nuget restore
+
+    - name: Build Android project
       run: |
-        nuget restore
         cd AwesomeXamarinApp
         cd AwesomeXamarinApp.Android
         msbuild AwesomeXamarinApp.Android.csproj /verbosity:normal /t:Rebuild /p:Configuration=Debug
 
+    - name: Obtain Android APK file
+    - uses: actions/upload-artifact@v2
+      with:
+        name: Xamarin Awesome App
+        path: AwesomeXamarinApp/AwesomeXamarinApp.Android/bin/Debug/com.companyname.awesomexamarinapp-Signed.apk
