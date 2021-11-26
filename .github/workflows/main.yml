@@ -16,7 +16,7 @@ jobs:
       run: |
         cd AwesomeXamarinApp
         cd AwesomeXamarinApp.Android
-        msbuild AwesomeXamarinApp.Android.csproj /verbosity:normal /t:Rebuild /p:Configuration=Debug
+        msbuild AwesomeXamarinApp.Android.csproj /verbosity:normal /t:Rebuild /t:PackageForAndroid /t:SignAndroidPackage /p:Configuration=Debug 
 
     - name: Obtain Android APK file
       uses: actions/upload-artifact@v2
