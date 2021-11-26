@@ -1,8 +1,27 @@
 name: hello-world
 on: push
 jobs:
-  my-job:
+  helloworld-job:
+  
     runs-on: ubuntu-latest
+    
     steps:
-      - name: my-step
-        run: echo "Hello World from GitHub Actions!"
+    - name: Checkout 
+      uses: actions/checkout@v1
+    
+    - name: Run a one-line script
+      run: echo Hello, world!
+      
+    - name: Run a multi-line script
+      run: |
+        echo Add other actions to build,
+        echo test, and deploy your project.
+        
+    - name: Show what's in the directory
+      run: |
+        ls
+        
+    - name: Show what's in the parent directory
+      run: |
+        cd ..
+        ls
