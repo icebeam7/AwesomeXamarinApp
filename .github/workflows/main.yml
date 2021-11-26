@@ -11,7 +11,6 @@ jobs:
     
     - name: Android
       run: |
-        cd AwesomeXamarinApp
         nuget restore
         cd AwesomeXamarinApp.Android
         msbuild AwesomeXamarinApp.Android.csproj /verbosity:normal /t:Rebuild /p:Configuration=Debug
