@@ -1,0 +1,43 @@
+name: CICD
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Android signing
+        run: |   
+           echo "${{ secrets.RELEASE_KEYSTORE }}" > awesomeapp.asc   
+           gpg -d --passphrase "${{ secrets.RELEASE_KEYSTORE_PASSWORD }}" --batch awesomeapp.asc > ./AwesomeXamarinApp/AwesomeXamarinApp.Android/awesomeapp.jks 
+
+      - name: Set Android version
+        uses: damienaicheh/update-android-version-manifest-action@v1.0.0
+        with:
+          android-manifest-path: ./AwesomeXamarinApp/AwesomeXamarinApp.Android/Properties/AndroidManifest.xml
+          version-name: ${{ secrets.APP_VERSION }}
+          version-code: ${{ github.run_number }}
+          print-file: true
+
+      - name: Restore NuGet packages
+        run: nuget restore
+
+      - name: Build Android
+        run: MSBuild /t:SignAndroidPackage /p:Configuration=Release /p:AndroidPackageFormat=apk /p:AndroidKeyStore=true /p:AndroidSigningKeyAlias=awesomeapp /p:AndroidSigningKeyPass=${{ secrets.DECRYPT_KEY }} /p:AndroidSigningKeyStore=awesomeapp.jks /p:AndroidSigningStorePass=${{ secrets.DECRYPT_KEY }} ./AwesomeXamarinApp/AwesomeXamarinApp.Android/AwesomeXamarinApp.Android.csproj
+        
+      - name: Setup App Center CLI
+        run: npm install -g appcenter-cli
+        
+      - name: Upload Android app to App Center
+        run: appcenter distribute release --silent --file ./AwesomeXamarinApp/AwesomeXamarinApp.Android/bin/Release/com.companyname.awesomexamarinapp-Signed.apk --app icebeam/Back2LearnApp --group Collaborators --token ${{ secrets.APPCENTER_TOKEN }}
+        
